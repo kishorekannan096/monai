@@ -6,8 +6,8 @@ global:
 backend:
   replicaCount: 1
   image:
-    repository: monai-backend # Update with correct OpenShift ImageStream or registry path
-    tag: latest
+    repository: kishorek123/monai # Update with correct OpenShift ImageStream or registry path
+    tag: backend
     pullPolicy: IfNotPresent
   resources:
     limits:
@@ -26,8 +26,8 @@ backend:
 frontend:
   replicaCount: 1
   image:
-    repository: monai-frontend # Update with correct OpenShift ImageStream or registry path
-    tag: latest
+    repository: kishorek123/monai # Update with correct OpenShift ImageStream or registry path
+    tag: frontend
     pullPolicy: IfNotPresent
   resources:
     limits:
