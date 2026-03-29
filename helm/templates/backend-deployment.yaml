@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: monai-backend
+  labels:
+    app: monai-backend
+spec:
+  replicas: {{ .Values.backend.replicaCount }}
+  selector:
+    matchLabels:
+      app: monai-backend
+  template:
+    metadata:
+      labels:
+        app: monai-backend
+    spec:
+      initContainers:
+        - name: wait-for-models
+          image: "{{ .Values.backend.image.repository }}:{{ .Values.backend.image.tag }}"
+          imagePullPolicy: {{ .Values.backend.image.pullPolicy }}
+          command:
+            - /bin/sh
+            - -c
+            - |
+              echo "Waiting for model files to be uploaded to the PVC..."
+              while [ ! -f {{ .Values.backend.env.ckptPath }} ]; do
+                echo "Model not found. Please run 'oc rsync ./outputs/ <pod-name>:/app/outputs/ --no-perms' in a separate terminal."
+                sleep 10
+              done
+              echo "Model found! Starting backend..."
+          volumeMounts:
+            - name: outputs-volume
+              mountPath: /app/outputs
+      containers:
+        - name: backend
+          image: "{{ .Values.backend.image.repository }}:{{ .Values.backend.image.tag }}"
+          imagePullPolicy: {{ .Values.backend.image.pullPolicy }}
+          ports:
+            - containerPort: 8000
+              protocol: TCP
+          env:
+            - name: CKPT_PATH
+              value: {{ .Values.backend.env.ckptPath }}
+            - name: VAL_LOADER_PATH
+              value: {{ .Values.backend.env.valLoaderPath }}
+            - name: TEMP_DIR
+              value: {{ .Values.backend.env.tempDir }}
+          resources:
+{{ toYaml .Values.backend.resources | indent 12 }}
+          volumeMounts:
+            - name: outputs-volume
+              mountPath: /app/outputs
+      volumes:
+        - name: outputs-volume
+          persistentVolumeClaim:
+            claimName: monai-outputs-pvc
