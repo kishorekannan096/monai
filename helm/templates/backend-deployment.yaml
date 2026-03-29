@@ -16,8 +16,9 @@ spec:
     spec:
       initContainers:
         - name: wait-for-models
-          image: "{{ .Values.backend.image.repository }}:{{ .Values.backend.image.tag }}"
-          imagePullPolicy: {{ .Values.backend.image.pullPolicy }}
+          # Red Hat UBI8 natively contains the 'tar' and 'rsync' binaries required by OpenShift.
+          image: "registry.access.redhat.com/ubi8/ubi:latest"
+          imagePullPolicy: IfNotPresent
           command:
             - /bin/sh
             - -c
