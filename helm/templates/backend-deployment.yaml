@@ -38,8 +38,10 @@ spec:
           imagePullPolicy: {{ .Values.backend.image.pullPolicy }}
           ports:
             - containerPort: 8000
-              protocol: TCP
+              protocol: TCP 
           env:
+            - name: MPLCONFIGDIR
+              value: /tmp/matplotlib
             - name: CKPT_PATH
               value: {{ .Values.backend.env.ckptPath }}
             - name: VAL_LOADER_PATH
@@ -51,7 +53,11 @@ spec:
           volumeMounts:
             - name: outputs-volume
               mountPath: /app/outputs
+            - name: heatmaps-volume
+              mountPath: /app/static/heatmaps
       volumes:
         - name: outputs-volume
           persistentVolumeClaim:
             claimName: monai-outputs-pvc
+        - name: heatmaps-volume
+          emptyDir: {}
