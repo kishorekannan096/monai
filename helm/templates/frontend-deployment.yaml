@@ -14,6 +14,8 @@ spec:
       labels:
         app: monai-frontend
     spec:
+      nodeSelector:
+{{ toYaml .Values.frontend.nodeSelector | indent 8 }}
       containers:
         - name: frontend
           image: "{{ .Values.frontend.image.repository }}:{{ .Values.frontend.image.tag }}"
