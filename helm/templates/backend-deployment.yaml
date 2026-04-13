@@ -4,21 +4,36 @@ metadata:
   name: monai-backend
   labels:
     app: monai-backend
+ 
 spec:
   replicas: {{ .Values.backend.replicaCount }}
+ 
   selector:
     matchLabels:
       app: monai-backend
+ 
   template:
     metadata:
       labels:
         app: monai-backend
+ 
     spec:
+ 
+      {{- if .Values.backend.nodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.backend.nodeSelector | indent 8 }}
+      {{- end }}
+ 
+      {{- if .Values.backend.tolerations }}
+      tolerations:
+{{ toYaml .Values.backend.tolerations | indent 8 }}
+      {{- end }}
+ 
       initContainers:
         - name: wait-for-models
-          # Red Hat UBI8 natively contains the 'tar' and 'rsync' binaries required by OpenShift.
           image: "registry.access.redhat.com/ubi8/ubi:latest"
           imagePullPolicy: IfNotPresent
+ 
           command:
             - /bin/sh
             - -c
@@ -29,16 +44,24 @@ spec:
                 sleep 10
               done
               echo "Model found! Starting backend..."
+ 
+          # ✅ FIX: prevent OOM during oc cp
+          resources:
+{{ toYaml .Values.backend.initResources | indent 12 }}
+ 
           volumeMounts:
             - name: outputs-volume
               mountPath: /app/outputs
+ 
       containers:
         - name: backend
           image: "{{ .Values.backend.image.repository }}:{{ .Values.backend.image.tag }}"
           imagePullPolicy: {{ .Values.backend.image.pullPolicy }}
+ 
           ports:
             - containerPort: 8000
-              protocol: TCP 
+              protocol: TCP
+ 
           env:
             - name: MPLCONFIGDIR
               value: /tmp/matplotlib
@@ -48,16 +71,20 @@ spec:
               value: {{ .Values.backend.env.valLoaderPath }}
             - name: TEMP_DIR
               value: {{ .Values.backend.env.tempDir }}
+ 
           resources:
 {{ toYaml .Values.backend.resources | indent 12 }}
+ 
           volumeMounts:
             - name: outputs-volume
               mountPath: /app/outputs
             - name: heatmaps-volume
               mountPath: /app/static/heatmaps
+ 
       volumes:
         - name: outputs-volume
           persistentVolumeClaim:
             claimName: monai-outputs-pvc
+ 
         - name: heatmaps-volume
           emptyDir: {}

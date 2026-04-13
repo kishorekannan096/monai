@@ -1,14 +1,16 @@
 # Default values for monai-chart.
-
+ 
 global:
   suffix: ""
-
+ 
 backend:
   replicaCount: 1
+ 
   image:
-    repository: kishorek123/monai # Update with correct OpenShift ImageStream or registry path
+    repository: kishorek123/monai
     tag: backend
     pullPolicy: IfNotPresent
+ 
   resources:
     limits:
       nvidia.com/gpu: 1
@@ -18,17 +20,35 @@ backend:
       nvidia.com/gpu: 1
       memory: "4Gi"
       cpu: "2"
+ 
+  # ✅ NEW: init container resources (fix for exit 137)
+  initResources:
+    limits:
+      memory: "2Gi"
+      cpu: "1"
+    requests:
+      memory: "1Gi"
+      cpu: "500m"
+ 
+  # Optional: node targeting (leave empty by default)
+  nodeSelector: {}
+ 
+  # Optional: tolerations
+  tolerations: []
+ 
   env:
     ckptPath: /app/outputs/checkpoints/best_cxr_multilabel_13.pt
     valLoaderPath: /app/outputs/val_samples_1.pkl
     tempDir: /app/static/heatmaps
-
+ 
 frontend:
   replicaCount: 1
+ 
   image:
-    repository: kishorek123/monai # Update with correct OpenShift ImageStream or registry path
+    repository: kishorek123/monai
     tag: frontend
     pullPolicy: IfNotPresent
+ 
   resources:
     limits:
       memory: "512Mi"
@@ -36,7 +56,7 @@ frontend:
     requests:
       memory: "128Mi"
       cpu: "100m"
-
+ 
 storage:
-  outputsClass: "" # Leave empty for default storage class
+  outputsClass: ""
   outputsSize: 10Gi
