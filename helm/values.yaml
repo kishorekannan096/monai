@@ -2,6 +2,13 @@
  
 global:
   suffix: ""
+
+  # Common node targeting applied to both backend and frontend.
+  # Override per-component via backend.nodeSelector / frontend.nodeSelector.
+  nodeSelector: {}
+
+  # Common tolerations applied to both backend and frontend.
+  tolerations: []
  
 backend:
   replicaCount: 1
@@ -43,12 +50,12 @@ backend:
  
 frontend:
   replicaCount: 1
- 
+
   image:
     repository: kishorek123/monai
     tag: frontend
     pullPolicy: IfNotPresent
- 
+
   resources:
     limits:
       memory: "512Mi"
@@ -56,6 +63,12 @@ frontend:
     requests:
       memory: "128Mi"
       cpu: "100m"
+
+  # Optional: node targeting (leave empty by default)
+  nodeSelector: {}
+
+  # Optional: tolerations
+  tolerations: []
  
 storage:
   outputsClass: ""

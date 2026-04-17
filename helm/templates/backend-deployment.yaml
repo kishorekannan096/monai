@@ -19,14 +19,16 @@ spec:
  
     spec:
  
-      {{- if .Values.backend.nodeSelector }}
+      {{- $ns := .Values.backend.nodeSelector | default .Values.global.nodeSelector }}
+      {{- if $ns }}
       nodeSelector:
-{{ toYaml .Values.backend.nodeSelector | indent 8 }}
+{{ toYaml $ns | indent 8 }}
       {{- end }}
- 
-      {{- if .Values.backend.tolerations }}
+
+      {{- $tol := .Values.backend.tolerations | default .Values.global.tolerations }}
+      {{- if $tol }}
       tolerations:
-{{ toYaml .Values.backend.tolerations | indent 8 }}
+{{ toYaml $tol | indent 8 }}
       {{- end }}
  
       initContainers:

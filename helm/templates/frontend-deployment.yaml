@@ -14,8 +14,16 @@ spec:
       labels:
         app: monai-frontend
     spec:
+      {{- $ns := .Values.frontend.nodeSelector | default .Values.global.nodeSelector }}
+      {{- if $ns }}
       nodeSelector:
-{{ toYaml .Values.frontend.nodeSelector | indent 8 }}
+{{ toYaml $ns | indent 8 }}
+      {{- end }}
+      {{- $tol := .Values.frontend.tolerations | default .Values.global.tolerations }}
+      {{- if $tol }}
+      tolerations:
+{{ toYaml $tol | indent 8 }}
+      {{- end }}
       containers:
         - name: frontend
           image: "{{ .Values.frontend.image.repository }}:{{ .Values.frontend.image.tag }}"
