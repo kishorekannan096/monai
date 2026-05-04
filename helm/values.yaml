@@ -15,7 +15,7 @@ backend:
  
   image:
     repository: kishorek123/monai
-    tag: backend
+    tag: backend-gpu
     pullPolicy: IfNotPresent
  
   resources:
