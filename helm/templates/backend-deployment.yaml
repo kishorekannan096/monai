@@ -65,6 +65,12 @@ spec:
               protocol: TCP
  
           env:
+            # Override the image's baked-in NVIDIA_VISIBLE_DEVICES=void so the
+            # NVIDIA container runtime injects the GPU allocated by the device plugin.
+            - name: NVIDIA_VISIBLE_DEVICES
+              value: "all"
+            - name: NVIDIA_DRIVER_CAPABILITIES
+              value: "compute,utility"
             - name: MPLCONFIGDIR
               value: /tmp/matplotlib
             - name: CKPT_PATH
